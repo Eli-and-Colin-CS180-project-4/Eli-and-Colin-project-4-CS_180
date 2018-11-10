@@ -23,16 +23,18 @@ final class ChatServer {
      * Right now it just creates the socketServer and adds a new ClientThread to a list to be handled
      */
     private void start() {
-        try {
-            ServerSocket serverSocket = new ServerSocket(port);
-            Socket socket = serverSocket.accept();
-            Runnable r = new ClientThread(socket, uniqueId++);
-            Thread t = new Thread(r);
-            clients.add((ClientThread) r);
-            t.start();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+            try {
+                ServerSocket serverSocket = new ServerSocket(port);
+                while (true) {
+                    Socket socket = serverSocket.accept();
+                    Runnable r = new ClientThread(socket, uniqueId++);
+                    Thread t = new Thread(r);
+                    clients.add((ClientThread) r);
+                    t.start();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
     }
 
     /*
@@ -42,7 +44,7 @@ final class ChatServer {
      */
     public static void main(String[] args) {
         ChatServer server = new ChatServer(1500);
-        server.start();
+            server.start();
     }
 
 

@@ -23,6 +23,7 @@ final class ChatClient {
      */
     private boolean start() {
         // Create a socket
+
         try {
             socket = new Socket(server, port);
         } catch (IOException e) {
@@ -80,7 +81,7 @@ final class ChatClient {
         // Get proper arguments and override defaults
 
         // Create your client and start it
-        ChatClient client = new ChatClient("localhost", 1500, "CS 180 Student");
+        ChatClient client = new ChatClient("localhost", 1500, "If you got this yay!");
         client.start();
 
         // Send an empty message to the server
@@ -96,8 +97,11 @@ final class ChatClient {
     private final class ListenFromServer implements Runnable {
         public void run() {
             try {
-                String msg = (String) sInput.readObject();
-                System.out.print(msg);
+                String msg;
+                while (true) {
+                    msg = (String) sInput.readObject();
+                    System.out.print(msg);
+                }
             } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
             }
