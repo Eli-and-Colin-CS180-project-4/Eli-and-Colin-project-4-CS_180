@@ -2,9 +2,10 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.Scanner;
 
 final class ChatClient {
-    private ObjectInputStream sInput;
+    private ObjectInputStream sInput    ;
     private ObjectOutputStream sOutput;
     private Socket socket;
 
@@ -12,10 +13,29 @@ final class ChatClient {
     private final String username;
     private final int port;
 
-    private ChatClient(String server, int port, String username) {
-        this.server = server;
-        this.port = port;
+    private ChatClient(){
+        username = "PurduePete";
+        port = 1500;
+        server = "localhost";
+    }
+
+    private ChatClient(String username){
         this.username = username;
+        port = 1500;
+        server = "localhost";
+    }
+
+
+    private ChatClient(String username, int port){
+        this.username = username;
+        this.port = port;
+        server = "localhost";
+    }
+
+    private ChatClient( String username, int port, String server) {
+        this.username = username;
+        this.port = port;
+        this.server = server;
     }
 
     /*
@@ -23,7 +43,6 @@ final class ChatClient {
      */
     private boolean start() {
         // Create a socket
-
         try {
             socket = new Socket(server, port);
         } catch (IOException e) {
@@ -78,14 +97,28 @@ final class ChatClient {
      * If the username is not specified "Anonymous" should be used
      */
     public static void main(String[] args) {
+        Scanner scn = new Scanner(System.in);
+
         // Get proper arguments and override defaults
+        ChatClient client = new ChatClient();
+        if (args.length == 1) {
+            client = new ChatClient(args[0]);
+        }
 
+        if (args.length == 2) {
+            client = new ChatClient(args[0], Integer.parseInt(args[1]));
+        }
+        if (args.length == 3) {
+            client = new ChatClient(args[0], Integer.parseInt(args[1]), args[2]);
+        }
         // Create your client and start it
-        ChatClient client = new ChatClient("localhost", 1500, "If you got this yay!");
         client.start();
+        while(true){
+            //String msg = scn.nextLine();
+            // Send an empty message to the server
+            client.sendMessage(new ChatMessage());
+        }
 
-        // Send an empty message to the server
-        client.sendMessage(new ChatMessage());
     }
 
 
@@ -96,15 +129,16 @@ final class ChatClient {
      */
     private final class ListenFromServer implements Runnable {
         public void run() {
-            try {
-                String msg;
-                while (true) {
-                    msg = (String) sInput.readObject();
+            while (true) {
+                try {
+                    String msg = (String) sInput.readObject();
                     System.out.print(msg);
+                } catch (IOException | ClassNotFoundException e) {
+                    e.printStackTrace();
                 }
-            } catch (IOException | ClassNotFoundException e) {
-                e.printStackTrace();
+
             }
+
         }
     }
 }
