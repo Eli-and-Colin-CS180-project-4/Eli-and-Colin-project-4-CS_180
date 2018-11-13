@@ -1,5 +1,10 @@
 
+<<<<<<< HEAD
+//Hi
+
+=======
 import java.util.Scanner;
+>>>>>>> 9a3313e99134899ebbcaeb36a7413291e588aa1c
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
