@@ -13,7 +13,6 @@ final class ChatMessage implements Serializable {
         this.str = str;
         this.num = num;
     }
-
     public int getNum() {
         return num;
     }
