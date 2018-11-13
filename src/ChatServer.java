@@ -1,6 +1,10 @@
 
+<<<<<<< HEAD
 //Hi
 
+=======
+import java.util.Scanner;
+>>>>>>> 9a3313e99134899ebbcaeb36a7413291e588aa1c
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -14,6 +18,9 @@ final class ChatServer {
     private final List<ClientThread> clients = new ArrayList<>();
     private final int port;
 
+    private ChatServer() {
+        port = 1500;
+    }
 
     private ChatServer(int port) {
         this.port = port;
@@ -24,8 +31,10 @@ final class ChatServer {
      * Right now it just creates the socketServer and adds a new ClientThread to a list to be handled
      */
     private void start() {
+
             try {
                 ServerSocket serverSocket = new ServerSocket(port);
+
                 while (true) {
                     Socket socket = serverSocket.accept();
                     Runnable r = new ClientThread(socket, uniqueId++);
@@ -33,9 +42,15 @@ final class ChatServer {
                     clients.add((ClientThread) r);
                     t.start();
                 }
+
+
+
+
             } catch (IOException e) {
                 e.printStackTrace();
             }
+
+
     }
 
     /*
@@ -44,8 +59,13 @@ final class ChatServer {
      *  If the port number is not specified 1500 is used
      */
     public static void main(String[] args) {
-        ChatServer server = new ChatServer(1500);
-            server.start();
+        ChatServer server = new ChatServer();
+
+        if(args.length == 1) {
+            server = new ChatServer(Integer.parseInt(args[0]));
+        }
+
+        server.start();
     }
 
 
