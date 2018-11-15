@@ -1,10 +1,5 @@
 
-<<<<<<< HEAD
-//Hi
-
-=======
 import java.util.Scanner;
->>>>>>> 9a3313e99134899ebbcaeb36a7413291e588aa1c
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -42,15 +37,9 @@ final class ChatServer {
                     clients.add((ClientThread) r);
                     t.start();
                 }
-
-
-
-
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
-
     }
 
     /*
@@ -93,25 +82,51 @@ final class ChatServer {
             }
         }
 
+        /**
+         * The remove method.
+         * This method takes a ClientThread ID as a parameter and
+         * removes the ClientThread from the clients ArrayList that shares
+         * the ID.
+         *
+         * The method is synchronized to ensure that there is no concurrency issues
+         * when removing the client from the clients ArrayList.
+         *
+         * Use this method when a user disconnects to remove their ClientThread from the list of active threads.
+         * 
+         * @param theID the ID of the ClientThread object to be removed.
+         */
+        public synchronized void remove(int theID) {
+            //Iterate across the clients ArrayList.
+            for (ClientThread temp: clients) {
+                //If the ID of the current ClientThread object matches the given ID.
+                if (temp.id == theID) {
+                    //Remove the object from the clients ArrayList.
+                    clients.remove(temp);
+                }
+            }
+        }
+
         /*
          * This is what the client thread actually runs.
          */
         @Override
         public void run() {
             // Read the username sent to you by client
-            try {
-                cm = (ChatMessage) sInput.readObject();
-            } catch (IOException | ClassNotFoundException e) {
-                e.printStackTrace();
-            }
-            System.out.println(username + ": Ping");
+            while (true) {
+                try {
+                    cm = (ChatMessage) sInput.readObject();
+                } catch (IOException | ClassNotFoundException e) {
+                    e.printStackTrace();
+                }
+                System.out.println(username + ":ping");
 
 
-            // Send message back to the client
-            try {
-                sOutput.writeObject("Pong");
-            } catch (IOException e) {
-                e.printStackTrace();
+                // Send message back to the client
+                try {
+                    sOutput.writeObject("Pong");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
