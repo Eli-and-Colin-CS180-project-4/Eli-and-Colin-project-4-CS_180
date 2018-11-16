@@ -1,6 +1,4 @@
 
-import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils;
-
 import java.util.Scanner;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -20,7 +18,7 @@ final class ChatServer {
     Date date = new Date();
 
     private ChatServer() {
-        port = 1502;
+        port = 1503;
     }
 
     private ChatServer(int port) {
@@ -57,10 +55,15 @@ final class ChatServer {
         for(ClientThread temp : clients){
             temp.writeMessage(message);
         }
+    }
 
 
-
-
+    private synchronized void directMessage(String message, String username) {
+        for (ClientThread temp: clients) {
+            if (temp.username == username) {
+                temp.writeMessage(message);
+            }
+        }
     }
 
     /*
@@ -80,8 +83,6 @@ final class ChatServer {
 
         server.start();
     }
-
-
 
 
     /*
@@ -187,10 +188,13 @@ final class ChatServer {
                     e.printStackTrace();
                 }
 
-                if(cm.getNum() == 1){
+                if (cm.getNum() == 1) {
                     remove(id);
                     broadcast(cm.getStr());
+                    break;
 
+                } else if (cm.getRecipient() != null) {
+                    directMessage(cm.getStr(), cm.getRecipient());
                 } else {
                     broadcast(cm.getStr());
                 }
