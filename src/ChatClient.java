@@ -5,7 +5,7 @@ import java.net.Socket;
 import java.util.Scanner;
 
 final class ChatClient {
-    private ObjectInputStream sInput    ;
+    private ObjectInputStream sInput;
     private ObjectOutputStream sOutput;
     private Socket socket;
 
@@ -13,26 +13,26 @@ final class ChatClient {
     private final String username;
     private final int port;
 
-    private ChatClient(){
+    private ChatClient() {
         username = "PurduePete";
-        port = 1502;
+        port = 1503;
         server = "localhost";
     }
 
-    private ChatClient(String username){
+    private ChatClient(String username) {
         this.username = username;
-        port = 1500;
+        port = 1503;
         server = "localhost";
     }
 
 
-    private ChatClient(String username, int port){
+    private ChatClient(String username, int port) {
         this.username = username;
         this.port = port;
         server = "localhost";
     }
 
-    private ChatClient( String username, int port, String server) {
+    private ChatClient(String username, int port, String server) {
         this.username = username;
         this.port = port;
         this.server = server;
@@ -115,19 +115,19 @@ final class ChatClient {
         }
         // Create your client and start it
         client.start();
-        while(true){
+        while (true) {
             String msg = scn.nextLine();
             if (msg.equals("/logout")) {
                 client.sendMessage(new ChatMessage(1, client.username + " disconnected with a LOGOUT message."));
                 break;
-            } else {
+            } else if (msg.contains("/msg")) {
+                client.sendMessage(new ChatMessage(0, msg, msg.substring(4, msg.indexOf(" ", 4))));
                 //Send an empty message to the server
+            } else {
                 client.sendMessage(new ChatMessage(0, msg));
             }
         }
-
         System.exit(0);
-
     }
 
 
