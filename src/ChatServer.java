@@ -1,4 +1,6 @@
 
+import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils;
+
 import java.util.Scanner;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -7,14 +9,18 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Date;
+import java.text.SimpleDateFormat;
 
 final class ChatServer {
     private static int uniqueId = 0;
     private final List<ClientThread> clients = new ArrayList<>();
     private final int port;
+    SimpleDateFormat formatter = new SimpleDateFormat("HH:mm:ss");
+    Date date = new Date();
 
     private ChatServer() {
-        port = 1500;
+        port = 1502;
     }
 
     private ChatServer(int port) {
@@ -26,10 +32,8 @@ final class ChatServer {
      * Right now it just creates the socketServer and adds a new ClientThread to a list to be handled
      */
     private void start() {
-
             try {
                 ServerSocket serverSocket = new ServerSocket(port);
-
                 while (true) {
                     Socket socket = serverSocket.accept();
                     Runnable r = new ClientThread(socket, uniqueId++);
@@ -40,6 +44,23 @@ final class ChatServer {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+
+
+    }
+
+    /**sends a message to all the chat cliets
+     * This goes through a loop of all the clients and tries to
+     * send a message to each one.
+     *
+     */
+    private synchronized void broadcast(String message) {
+        for(ClientThread temp : clients){
+            temp.writeMessage(message);
+        }
+
+
+
+
     }
 
     /*
@@ -48,14 +69,19 @@ final class ChatServer {
      *  If the port number is not specified 1500 is used
      */
     public static void main(String[] args) {
-        ChatServer server = new ChatServer();
+        ChatServer server;
 
         if(args.length == 1) {
             server = new ChatServer(Integer.parseInt(args[0]));
+
+        } else {
+            server = new ChatServer();
         }
 
         server.start();
     }
+
+
 
 
     /*
@@ -82,6 +108,28 @@ final class ChatServer {
             }
         }
 
+        /** This sends the message to the chat client connected,
+         * and does it weather or not the person sent it
+         *
+         *
+         * NEEEDs to check if socket is connected?
+         *
+         */
+
+        private boolean writeMessage(String msg) {
+
+            try {
+                sOutput.writeObject(formatter.format(date) + " " + username + ": "
+                        + msg + "\n");
+            } catch (Exception e) {
+                e.printStackTrace();
+                return false;
+            }
+
+            return true;
+
+        }
+
         /**
          * The remove method.
          * This method takes a ClientThread ID as a parameter and
@@ -92,7 +140,7 @@ final class ChatServer {
          * when removing the client from the clients ArrayList.
          *
          * Use this method when a user disconnects to remove their ClientThread from the list of active threads.
-         * 
+         *
          * @param theID the ID of the ClientThread object to be removed.
          */
         public synchronized void remove(int theID) {
@@ -100,11 +148,31 @@ final class ChatServer {
             for (ClientThread temp: clients) {
                 //If the ID of the current ClientThread object matches the given ID.
                 if (temp.id == theID) {
-                    //Remove the object from the clients ArrayList.
-                    clients.remove(temp);
+                    try {
+                        //Remove the object from the clients ArrayList.
+                        temp.socket.close();
+                        temp.sInput.close();
+                        temp.sOutput.close();
+                        clients.remove(temp);
+                        break;
+                    } catch (IOException e){
+                        return;
+                    }
+
                 }
             }
         }
+
+             /*
+
+          Iterator<ClientThread> iter = clients.iterator();
+            while(iter.hasNext()){
+                ClientThread thread = iter.next();
+                if(theID == thread.id){
+                    iter.remove();
+                }
+            }
+         */
 
         /*
          * This is what the client thread actually runs.
@@ -118,15 +186,23 @@ final class ChatServer {
                 } catch (IOException | ClassNotFoundException e) {
                     e.printStackTrace();
                 }
-                System.out.println(username + ":ping");
+
+                if(cm.getNum() == 1){
+                    remove(id);
+                    broadcast(cm.getStr());
+
+                } else {
+                    broadcast(cm.getStr());
+                }
+                System.out.println(formatter.format(date) + " " + username + ": " + cm.getStr());
 
 
-                // Send message back to the client
-                try {
-                    sOutput.writeObject("Pong");
+                /*try {
+                    sOutput.writeObject(username + ": " + cm.getStr() + "\n");
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+                */
             }
         }
     }
