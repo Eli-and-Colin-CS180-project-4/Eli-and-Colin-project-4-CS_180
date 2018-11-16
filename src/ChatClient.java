@@ -5,7 +5,7 @@ import java.net.Socket;
 import java.util.Scanner;
 
 final class ChatClient {
-    private ObjectInputStream sInput;
+    private ObjectInputStream sInput    ;
     private ObjectOutputStream sOutput;
     private Socket socket;
 
@@ -15,7 +15,7 @@ final class ChatClient {
 
     private ChatClient(){
         username = "PurduePete";
-        port = 1500;
+        port = 1502;
         server = "localhost";
     }
 
@@ -100,7 +100,7 @@ final class ChatClient {
         Scanner scn = new Scanner(System.in);
 
         // Get proper arguments and override defaults
-        ChatClient client = new ChatClient();
+        ChatClient client;
         if (args.length == 1) {
             client = new ChatClient(args[0]);
         }
@@ -110,19 +110,23 @@ final class ChatClient {
         }
         if (args.length == 3) {
             client = new ChatClient(args[0], Integer.parseInt(args[1]), args[2]);
+        } else {
+            client = new ChatClient();
         }
         // Create your client and start it
         client.start();
         while(true){
             String msg = scn.nextLine();
-            System.out.println("I made it");
             if (msg.equals("/logout")) {
                 client.sendMessage(new ChatMessage(1, client.username + " disconnected with a LOGOUT message."));
+                break;
             } else {
                 //Send an empty message to the server
                 client.sendMessage(new ChatMessage(0, msg));
             }
         }
+
+        System.exit(0);
 
     }
 
