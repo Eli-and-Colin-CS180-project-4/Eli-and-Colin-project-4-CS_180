@@ -14,14 +14,22 @@ final class ChatServer {
     private static int uniqueId = 0;
     private final List<ClientThread> clients = new ArrayList<>();
     private final int port;
+    private final String filename;
     SimpleDateFormat formatter = new SimpleDateFormat("HH:mm:ss");
     Date date = new Date();
 
     private ChatServer() {
+        filename = "badwords.txt";
         port = 1503;
     }
 
     private ChatServer(int port) {
+        filename = "badwords.txt";
+        this.port = port;
+    }
+
+    private ChatServer(int port, String filename) {
+        this.filename = filename;
         this.port = port;
     }
 
@@ -73,14 +81,19 @@ final class ChatServer {
      */
     public static void main(String[] args) {
         ChatServer server;
-
-        if(args.length == 1) {
-            server = new ChatServer(Integer.parseInt(args[0]));
-
-        } else {
-            server = new ChatServer();
+        switch (args.length) {
+            case 0:
+                server = new ChatServer();
+                break;
+            case 1:
+                server = new ChatServer(Integer.parseInt(args[0]));
+                break;
+            case 2:
+                server = new ChatServer(Integer.parseInt(args[0]), args[1]);
+                break;
+                default:
+                    server = new ChatServer();
         }
-
         server.start();
     }
 
@@ -188,16 +201,19 @@ final class ChatServer {
                     e.printStackTrace();
                 }
 
+                //If the message is a logout message
                 if (cm.getNum() == 1) {
                     remove(id);
                     broadcast(cm.getStr());
                     break;
-
+                //If a recipient was specified when creating the message, send a direct message.
                 } else if (cm.getRecipient() != null) {
                     directMessage(cm.getStr(), cm.getRecipient());
+                //Send a broadcast message to all members of the server
                 } else {
                     broadcast(cm.getStr());
                 }
+                //Print the message out server side.
                 System.out.println(formatter.format(date) + " " + username + ": " + cm.getStr());
 
 
