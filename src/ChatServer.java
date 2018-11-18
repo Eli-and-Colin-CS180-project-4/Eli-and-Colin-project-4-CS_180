@@ -1,4 +1,3 @@
-
 import java.util.Scanner;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -38,18 +37,18 @@ final class ChatServer {
      * Right now it just creates the socketServer and adds a new ClientThread to a list to be handled
      */
     private void start() {
-            try {
-                ServerSocket serverSocket = new ServerSocket(port);
-                while (true) {
-                    Socket socket = serverSocket.accept();
-                    Runnable r = new ClientThread(socket, uniqueId++);
-                    Thread t = new Thread(r);
-                    clients.add((ClientThread) r);
-                    t.start();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
+        try {
+            ServerSocket serverSocket = new ServerSocket(port);
+            while (true) {
+                Socket socket = serverSocket.accept();
+                Runnable r = new ClientThread(socket, uniqueId++);
+                Thread t = new Thread(r);
+                clients.add((ClientThread) r);
+                t.start();
             }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
 
     }
@@ -68,7 +67,7 @@ final class ChatServer {
 
     private synchronized void directMessage(String message, String username) {
         for (ClientThread temp: clients) {
-            if (temp.username == username) {
+            if (temp.username.equals(username)) {
                 temp.writeMessage(message);
             }
         }
@@ -178,7 +177,6 @@ final class ChatServer {
         }
 
              /*
-
           Iterator<ClientThread> iter = clients.iterator();
             while(iter.hasNext()){
                 ClientThread thread = iter.next();
