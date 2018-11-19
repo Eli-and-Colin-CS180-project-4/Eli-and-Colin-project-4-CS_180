@@ -2,22 +2,24 @@ import java.io.*;
 import java.util.ArrayList;
 
 public class ChatFilter {
-    BufferedReader br;
-    ArrayList<String> badWords = new ArrayList<>();
+    private BufferedReader br;
+    private String badWordsFile;
+    private ArrayList<String> badWords = new ArrayList<>();
     /**
      * The ChatFilter constructor.
      * The constructor takes in a filepath that leads to the badWordsFileName
      * and attempts to create a buffered reader that reads from that file.
      * If the filepath does not exist, a FileNotFoundException will be thrown.
-     * @param badWordsFileName the filepath that contains the words to be censored.
+     * @param badWordsFilePath the filepath that contains the words to be censored.
      * @throws FileNotFoundException
      */
-    public ChatFilter(String badWordsFileName) throws FileNotFoundException {
+    public ChatFilter(String badWordsFilePath) throws FileNotFoundException {
         //Check if the filepath exists
-        if (!new File(badWordsFileName).exists()) {
+        badWordsFile = badWordsFilePath.substring(badWordsFilePath.lastIndexOf("/") + 1);
+        if (!new File(badWordsFilePath).exists()) {
             throw new FileNotFoundException("Error: file specified in the the creation of the server does not exist!");
         } else {
-            br = new BufferedReader(new FileReader(badWordsFileName));
+            br = new BufferedReader(new FileReader(badWordsFilePath));
         }
 
         //The array that will store all the bad words
@@ -35,6 +37,17 @@ public class ChatFilter {
     }
 
     /**
+     * Lists all the bad words in the file.
+     */
+    public synchronized void listBadWords() {
+        System.out.println("Banned Words File: " + badWordsFile);
+        System.out.println("Banned Words:");
+        for (String temp: badWords) {
+            System.out.println(temp);
+        }
+    }
+
+    /**
      * The filter method.
      * This method takes in a message as a parameter, and then censors all
      * instances of words from the badWords
@@ -43,7 +56,7 @@ public class ChatFilter {
      * @param msg the message to be censored.
      * @return the censored message.
      */
-    public String filter(String msg) {
+    public synchronized String filter(String msg) {
 
         //Begin checking for bad words
         for (String temp: badWords) {
