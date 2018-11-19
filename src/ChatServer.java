@@ -59,12 +59,15 @@ final class ChatServer {
     private void start() {
         try {
             ServerSocket serverSocket = new ServerSocket(port);
+            System.out.println(formatter.format(date) + " Server waiting for Clients on port"
+                    + port + ".");
             while (true) {
                 Socket socket = serverSocket.accept();
                 Runnable r = new ClientThread(socket, uniqueId++);
                 Thread t = new Thread(r);
                 clients.add((ClientThread) r);
                 t.start();
+                
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -146,10 +149,10 @@ final class ChatServer {
                     return;
                 }
                 break;
-                default:
-                    System.out.println("Error occurred when creating the server! Make sure you are not using too" +
-                            " many arguments!");
-                    return;
+            default:
+                System.out.println("Error occurred when creating the server! Make sure you are not using too" +
+                        " many arguments!");
+                return;
         }
         server.start();
     }
@@ -249,6 +252,9 @@ final class ChatServer {
          */
         @Override
         public void run() {
+            System.out.println(formatter.format(date) + " " + username + " just connected");
+            System.out.println(formatter.format(date) + " Server waiting for Clients on port"
+                    + port + ".");
             while (true) {
                 try {
                     cm = (ChatMessage) sInput.readObject();
@@ -261,7 +267,7 @@ final class ChatServer {
                     remove(id);
                     broadcast(cm.getStr());
                     break;
-                //If a recipient was specified when creating the message, send a direct message.
+                    //If a recipient was specified when creating the message, send a direct message.
                 } else if (cm.getRecipient() != null) {
                     //Censor the string
                     directMessage(filter.filter(cm.getStr()), cm.getRecipient());
