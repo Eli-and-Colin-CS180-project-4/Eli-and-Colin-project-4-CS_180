@@ -114,6 +114,8 @@ final class ChatClient {
             } else if (msg.contains("/msg")) {
                 client.sendMessage(new ChatMessage(0, msg, msg.substring(5, msg.indexOf(" ", 5))));
                 //Send an empty message to the server
+            } else if (msg.equals("/list")) {
+              client.sendMessage(new ChatMessage(0, msg + " " + client.username));
             } else {
                 client.sendMessage(new ChatMessage(0, msg));
             }

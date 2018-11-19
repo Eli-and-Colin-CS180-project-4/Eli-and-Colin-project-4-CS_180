@@ -106,7 +106,7 @@ final class ChatServer {
         String listString = "";
         ClientThread receiver = null;
         for (ClientThread temp: clients) {
-            if (temp.username != username) {
+            if (!temp.username.equals(username)) {
                 listString += temp.username + "\n";
             } else {
                 receiver = temp;
