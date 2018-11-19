@@ -24,6 +24,8 @@ final class ChatServer {
         } catch (FileNotFoundException e) {
             throw new FileNotFoundException("Error: Filepath does not exist!");
         }
+
+        filter.listBadWords();
         port = 1503;
 
     }
@@ -34,6 +36,8 @@ final class ChatServer {
         } catch (FileNotFoundException e) {
             throw new FileNotFoundException("Error: Filepath does not exist!");
         }
+
+        filter.listBadWords();
         this.port = port;
     }
 
@@ -43,6 +47,8 @@ final class ChatServer {
         } catch (FileNotFoundException e) {
             throw new FileNotFoundException("Error: Filepath does not exist!");
         }
+
+        filter.listBadWords();
         this.port = port;
     }
 
