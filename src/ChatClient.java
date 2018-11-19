@@ -117,13 +117,19 @@ final class ChatClient {
         client.start();
         while (true) {
             String msg = scn.nextLine();
+            //If the user wishes to logout
             if (msg.equals("/logout")) {
                 client.sendMessage(new ChatMessage(1, client.username + " disconnected with a LOGOUT message."));
                 break;
+            //If the user wants to send a direct message .
             } else if (msg.contains("/msg")) {
                 client.sendMessage(new ChatMessage(0, msg, msg.substring(5, msg.indexOf(" ", 5))));
-                //Send an empty message to the server
+            //If the user wants a list of all the active clients.
+            } else if (msg.equals("/list")) {
+                //Send the client's username instead of the message.
+                client.sendMessage(new ChatMessage(0, msg + " " + client.username));
             } else {
+                //Send a message to everyone in the chat server.
                 client.sendMessage(new ChatMessage(0, msg));
             }
         }
