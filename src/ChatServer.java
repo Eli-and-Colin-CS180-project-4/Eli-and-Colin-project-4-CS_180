@@ -106,7 +106,7 @@ final class ChatServer {
         String listString = "";
         ClientThread receiver = null;
         for (ClientThread temp: clients) {
-            if (temp.username != username) {
+            if (!temp.username.equals(username)) {
                 listString += temp.username + "\n";
             } else {
                 receiver = temp;
@@ -274,7 +274,7 @@ final class ChatServer {
                     //Send a broadcast message to all members of the server
                 } else if (cm.getStr().contains("/list")) {
                     //Gets the username and passes it to the method. The username is always preceded by a space.
-                    listUsers(cm.getStr().substring(cm.getStr().indexOf(" ")));
+                    listUsers(cm.getStr().substring(cm.getStr().indexOf(" ") + 1));
                 } else {
                     //Censor the string
                     broadcast(filter.filter(cm.getStr()));
