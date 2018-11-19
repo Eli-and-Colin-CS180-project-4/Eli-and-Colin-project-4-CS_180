@@ -59,7 +59,7 @@ final class ChatServer {
     private void start() {
         try {
             ServerSocket serverSocket = new ServerSocket(port);
-            System.out.println(formatter.format(date) + " Server waiting for Clients on port"
+            System.out.println(formatter.format(date) + " Server waiting for Clients on port "
                     + port + ".");
             while (true) {
                 Socket socket = serverSocket.accept();
@@ -67,7 +67,7 @@ final class ChatServer {
                 Thread t = new Thread(r);
                 clients.add((ClientThread) r);
                 t.start();
-                
+
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -193,8 +193,7 @@ final class ChatServer {
         private boolean writeMessage(String msg) {
 
             try {
-                sOutput.writeObject(formatter.format(date) + " " + username + ": "
-                        + msg + "\n");
+                sOutput.writeObject(msg);
             } catch (Exception e) {
                 e.printStackTrace();
                 return false;
@@ -253,7 +252,7 @@ final class ChatServer {
         @Override
         public void run() {
             System.out.println(formatter.format(date) + " " + username + " just connected");
-            System.out.println(formatter.format(date) + " Server waiting for Clients on port"
+            System.out.println(formatter.format(date) + " Server waiting for Clients on port "
                     + port + ".");
             while (true) {
                 try {
@@ -269,15 +268,21 @@ final class ChatServer {
                     break;
                     //If a recipient was specified when creating the message, send a direct message.
                 } else if (cm.getRecipient() != null) {
+
+                    String lul = formatter.format(date) + " " + username + " -> "
+                            + cm.getStr() + "\n";
                     //Censor the string
-                    directMessage(filter.filter(cm.getStr()), cm.getRecipient());
+
+                    directMessage(filter.filter(lul), cm.getRecipient());
                     //Send a broadcast message to all members of the server
                 } else if (cm.getStr().contains("/list")) {
                     //Gets the username and passes it to the method. The username is always preceded by a space.
-                    listUsers(cm.getStr().substring(cm.getStr().indexOf(" ")));
+                    listUsers(cm.getStr().substring(cm.getStr().indexOf(" ") + 1));
                 } else {
                     //Censor the string
-                    broadcast(filter.filter(cm.getStr()));
+                    String lul = formatter.format(date) + " " + username + ": "
+                            + cm.getStr() + "\n";
+                    broadcast(filter.filter(lul));
                 }
                 //Print the message out server side.
                 System.out.println(formatter.format(date) + " " + username + ": " + cm.getStr());
