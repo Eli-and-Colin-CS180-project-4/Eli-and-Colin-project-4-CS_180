@@ -1,3 +1,4 @@
+import java.io.FileNotFoundException;
 import java.util.Scanner;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -13,22 +14,35 @@ final class ChatServer {
     private static int uniqueId = 0;
     private final List<ClientThread> clients = new ArrayList<>();
     private final int port;
-    private final String filename;
+    private final ChatFilter filter;
     SimpleDateFormat formatter = new SimpleDateFormat("HH:mm:ss");
     Date date = new Date();
 
-    private ChatServer() {
-        filename = "badwords.txt";
+    private ChatServer() throws FileNotFoundException {
+        try {
+            filter = new ChatFilter("src/badwords.txt");
+        } catch (FileNotFoundException e) {
+            throw new FileNotFoundException("Error: Filepath does not exist!");
+        }
         port = 1503;
+
     }
 
-    private ChatServer(int port) {
-        filename = "badwords.txt";
+    private ChatServer(int port) throws FileNotFoundException {
+        try {
+            filter = new ChatFilter("src/badwords.txt");
+        } catch (FileNotFoundException e) {
+            throw new FileNotFoundException("Error: Filepath does not exist!");
+        }
         this.port = port;
     }
 
-    private ChatServer(int port, String filename) {
-        this.filename = filename;
+    private ChatServer(int port, String filename) throws FileNotFoundException {
+        try {
+            filter = new ChatFilter(filename);
+        } catch (FileNotFoundException e) {
+            throw new FileNotFoundException("Error: Filepath does not exist!");
+        }
         this.port = port;
     }
 
@@ -73,6 +87,27 @@ final class ChatServer {
         }
     }
 
+    /**
+     * Returns a list of the current users to whoever typed in the command.
+     * It takes a username in as a parameter and will fill a return string
+     * with all the usernames not including who typed the command.
+     * @param username the username of whoever typed the command.
+     */
+    private synchronized void listUsers(String username) {
+        String listString = "";
+        ClientThread receiver = null;
+        for (ClientThread temp: clients) {
+            if (temp.username != username) {
+                listString += temp.username + "\n";
+            } else {
+                receiver = temp;
+            }
+        }
+        if (receiver != null) {
+            receiver.writeMessage(listString);
+        }
+    }
+
     /*
      *  > java ChatServer
      *  > java ChatServer portNumber
@@ -82,16 +117,33 @@ final class ChatServer {
         ChatServer server;
         switch (args.length) {
             case 0:
-                server = new ChatServer();
+                try {
+                    server = new ChatServer();
+                } catch (FileNotFoundException e) {
+                    System.out.println("Error file not found for censoring! Make sure file is specified correctly!");
+                    return;
+                }
                 break;
             case 1:
-                server = new ChatServer(Integer.parseInt(args[0]));
+                try {
+                    server = new ChatServer(Integer.parseInt(args[0]));
+                } catch (FileNotFoundException e) {
+                    System.out.println("Error file not found for censoring! Make sure file is specified correctly!");
+                    return;
+                }
                 break;
             case 2:
-                server = new ChatServer(Integer.parseInt(args[0]), args[1]);
+                try {
+                    server = new ChatServer(Integer.parseInt(args[0]), args[1]);
+                } catch (FileNotFoundException e) {
+                    System.out.println("Error file not found for censoring! Make sure file is specified correctly!");
+                    return;
+                }
                 break;
                 default:
-                    server = new ChatServer();
+                    System.out.println("Error occurred when creating the server! Make sure you are not using too" +
+                            " many arguments!");
+                    return;
         }
         server.start();
     }
@@ -191,7 +243,6 @@ final class ChatServer {
          */
         @Override
         public void run() {
-            // Read the username sent to you by client
             while (true) {
                 try {
                     cm = (ChatMessage) sInput.readObject();
@@ -206,10 +257,15 @@ final class ChatServer {
                     break;
                 //If a recipient was specified when creating the message, send a direct message.
                 } else if (cm.getRecipient() != null) {
-                    directMessage(cm.getStr(), cm.getRecipient());
-                //Send a broadcast message to all members of the server
+                    //Censor the string
+                    directMessage(filter.filter(cm.getStr()), cm.getRecipient());
+                    //Send a broadcast message to all members of the server
+                } else if (cm.getStr().contains("/list")) {
+                    //Gets the username and passes it to the method. The username is always preceded by a space.
+                    listUsers(cm.getStr().substring(cm.getStr().indexOf(" ")));
                 } else {
-                    broadcast(cm.getStr());
+                    //Censor the string
+                    broadcast(filter.filter(cm.getStr()));
                 }
                 //Print the message out server side.
                 System.out.println(formatter.format(date) + " " + username + ": " + cm.getStr());

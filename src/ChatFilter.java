@@ -3,7 +3,7 @@ import java.util.ArrayList;
 
 public class ChatFilter {
     BufferedReader br;
-
+    ArrayList<String> badWords = new ArrayList<>();
     /**
      * The ChatFilter constructor.
      * The constructor takes in a filepath that leads to the badWordsFileName
@@ -19,6 +19,19 @@ public class ChatFilter {
         } else {
             br = new BufferedReader(new FileReader(badWordsFileName));
         }
+
+        //The array that will store all the bad words
+        String line;
+        try {
+            //Create an ArrayList containing all the bad words in the badWordsFile.
+            while ((line = br.readLine()) != null) {
+                badWords.add(line);
+            }
+        } catch (IOException e) {
+            //If there ends up being some error in reading the file
+            System.out.println("Error in reading process! A null value will be returned");
+        }
+
     }
 
     /**
@@ -31,19 +44,7 @@ public class ChatFilter {
      * @return the censored message.
      */
     public String filter(String msg) {
-        //The array that will store all the bad words
-        ArrayList<String> badWords = new ArrayList<>();
-        String line;
-        try {
-            //Create an ArrayList containing all the bad words in the badWordsFile.
-            while ((line = br.readLine()) != null) {
-                badWords.add(line);
-            }
-        } catch (IOException e) {
-            //If there ends up being some error in reading the file
-            System.out.println("Error in reading process! A null value will be returned");
-            return null;
-        }
+
         //Begin checking for bad words
         for (String temp: badWords) {
             if (msg.contains(temp)) {
