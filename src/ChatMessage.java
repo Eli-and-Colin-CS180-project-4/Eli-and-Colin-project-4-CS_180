@@ -5,6 +5,7 @@ final class ChatMessage implements Serializable {
     private static final long serialVersionUID = 6898543889087L;
     int num;
     String str;
+    String sender;
     String recipient;
 
 
@@ -15,7 +16,8 @@ final class ChatMessage implements Serializable {
         this.num = num;
     }
 
-    public ChatMessage(int num, String str, String recipient) {
+    public ChatMessage(int num, String str, String sender, String recipient) {
+        this.sender = sender;
         this.str = str;
         this.num = num;
         this.recipient = recipient;
@@ -30,5 +32,9 @@ final class ChatMessage implements Serializable {
     }
 
     public String getRecipient() {return recipient;}
+
+    public String getSender() {
+        return sender;
+    }
 
 }

@@ -88,9 +88,16 @@ final class ChatServer {
     }
 
 
-    private synchronized void directMessage(String message, String username) {
+    /**
+     * Sends a direct message to the specified recipient.
+     * Will print the message to both the receiver and sender.
+     * @param message the message to be sent.
+     * @param sender the user sending the message.
+     * @param recipient the user receiving the message.
+     */
+    private synchronized void directMessage(String message, String sender, String recipient) {
         for (ClientThread temp: clients) {
-            if (temp.username.equals(username)) {
+            if (temp.username.equals(recipient) || temp.username.equals(sender)) {
                 temp.writeMessage(message);
             }
         }
@@ -103,17 +110,21 @@ final class ChatServer {
      * @param username the username of whoever typed the command.
      */
     private synchronized void listUsers(String username) {
-        String listString = "";
+        String listString = "Active Users: " + "\n";
         ClientThread receiver = null;
-        for (ClientThread temp: clients) {
-            if (!temp.username.equals(username)) {
-                listString += temp.username + "\n";
-            } else {
-                receiver = temp;
+        if (clients.size() == 1) {
+            clients.get(0).writeMessage("You are the only user in the chat server!");
+        } else {
+            for (ClientThread temp : clients) {
+                if (!temp.username.equals(username)) {
+                    listString += temp.username + "\n";
+                } else {
+                    receiver = temp;
+                }
             }
-        }
-        if (receiver != null) {
-            receiver.writeMessage(listString);
+            if (receiver != null) {
+                receiver.writeMessage(listString);
+            }
         }
     }
 
@@ -255,6 +266,7 @@ final class ChatServer {
             System.out.println(formatter.format(date) + " Server waiting for Clients on port "
                     + port + ".");
             while (true) {
+                String message = null;
                 try {
                     cm = (ChatMessage) sInput.readObject();
                 } catch (IOException | ClassNotFoundException e) {
@@ -263,29 +275,35 @@ final class ChatServer {
 
                 //If the message is a logout message
                 if (cm.getNum() == 1) {
+                    message = cm.getStr();
                     remove(id);
                     broadcast(cm.getStr());
                     break;
                     //If a recipient was specified when creating the message, send a direct message.
                 } else if (cm.getRecipient() != null) {
 
+                    //The substring method is used to get the message excluding the "/msg user"
                     String lul = formatter.format(date) + " " + username + " -> "
-                            + cm.getStr() + "\n";
+                            + cm.getRecipient() + ": " + cm.getStr().substring(cm.getStr()
+                            .indexOf(cm.getRecipient()) + cm.getRecipient().length()) + "\n";
+                    message = lul;
                     //Censor the string
 
-                    directMessage(filter.filter(lul), cm.getRecipient());
+                    directMessage(filter.filter(lul), cm.getSender(), cm.getRecipient());
                     //Send a broadcast message to all members of the server
                 } else if (cm.getStr().contains("/list")) {
                     //Gets the username and passes it to the method. The username is always preceded by a space.
                     listUsers(cm.getStr().substring(cm.getStr().indexOf(" ") + 1));
+                    message = cm.getStr();
                 } else {
                     //Censor the string
                     String lul = formatter.format(date) + " " + username + ": "
                             + cm.getStr() + "\n";
                     broadcast(filter.filter(lul));
+                    message = lul;
                 }
                 //Print the message out server side.
-                System.out.println(formatter.format(date) + " " + username + ": " + cm.getStr());
+                System.out.println(formatter.format(date) + " " + username + ":" + message);
 
 
                 /*try {
