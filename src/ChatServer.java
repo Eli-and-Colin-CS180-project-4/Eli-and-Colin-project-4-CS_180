@@ -305,7 +305,7 @@ final class ChatServer {
                     message = lul;
                 }
                 //Print the message out server side.
-                System.out.println(formatter.format(date) + " " + username + ":" + message);
+                System.out.println(message);
 
 
                 /*try {
