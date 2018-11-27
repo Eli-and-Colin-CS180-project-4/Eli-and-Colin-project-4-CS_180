@@ -108,7 +108,9 @@ final class ChatClient {
         client.start();
         while (true) {
             String msg = scn.nextLine();
-            if (msg.equals("/logout")) {
+            if(msg.length() == 0){
+
+            } else if (msg.equals("/logout")) {
                 client.sendMessage(new ChatMessage(1, client.username +
                         " disconnected with a LOGOUT message."));
                 System.out.println("Server has closed the connection.");
