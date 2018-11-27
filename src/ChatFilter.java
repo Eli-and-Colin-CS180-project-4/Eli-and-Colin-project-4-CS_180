@@ -65,7 +65,15 @@ public class ChatFilter {
                 for (int i = 0; i < temp.length(); i++) {
                     replaceString += "*";
                 }
-              msg = msg.replaceAll(temp, replaceString);
+                ArrayList<Integer> indexes = new ArrayList<>();
+                int index = 0;
+                while (msg.toUpperCase().indexOf(temp.toUpperCase(), index) > 0) {
+                    indexes.add(msg.toUpperCase().indexOf(temp.toUpperCase(), index));
+                    index = msg.toUpperCase().indexOf(temp.toUpperCase(), index) + 1;
+                }
+                for (int i: indexes) {
+                    msg = msg.replace(msg.substring(i, i + temp.length()), replaceString);
+                }
             }
         }
         return msg;
