@@ -316,7 +316,7 @@ final class ChatServer {
                     message = lul;
                 }
                 //Print the message out server side.
-                System.out.println(message);
+                System.out.print(message);
 
 
                 /*try {
