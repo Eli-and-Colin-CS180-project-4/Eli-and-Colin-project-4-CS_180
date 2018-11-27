@@ -108,14 +108,21 @@ final class ChatClient {
         client.start();
         while (true) {
             String msg = scn.nextLine();
-            if (msg.equals("/logout")) {
+            if(msg.length() == 0){
+
+            } else if (msg.equals("/logout")) {
                 client.sendMessage(new ChatMessage(1, client.username +
                         " disconnected with a LOGOUT message."));
                 System.out.println("Server has closed the connection.");
                 break;
             } else if (msg.contains("/msg")) {
-                client.sendMessage(new ChatMessage(0, msg, client.username,
-                        msg.substring(5, msg.indexOf(" ", 5))));
+                try {
+                    client.sendMessage(new ChatMessage(0, msg, client.username,
+                            msg.substring(5, msg.indexOf(" ", 5))));
+                } catch (StringIndexOutOfBoundsException e) {
+                    System.out.println("Message missing");
+                }
+
                 //Send an empty message to the server
             } else if (msg.equals("/list")) {
                 client.sendMessage(new ChatMessage(0, msg + " " + client.username));
