@@ -192,6 +192,7 @@ final class ChatServer {
                     for (ClientThread temp: clients) {
                         if (temp.getUsername().equalsIgnoreCase(username)) {
                             sOutput.writeObject("Username has already been taken!");
+                            System.out.println(formatter.format(date) + " This username is already taken.");
                         }
                     }
                 }
@@ -282,7 +283,7 @@ final class ChatServer {
                     cm = (ChatMessage) sInput.readObject();
                 } catch (IOException | ClassNotFoundException e) {
                     remove(id);
-                    System.out.println(username + " just forced logged out.");
+                    System.out.println(formatter.format(date) + " " + username + " just forced logged out.");
                     break;
                 }
 
@@ -316,7 +317,7 @@ final class ChatServer {
                     message = lul;
                 }
                 //Print the message out server side.
-                System.out.println(message);
+                System.out.print(message);
 
 
                 /*try {
