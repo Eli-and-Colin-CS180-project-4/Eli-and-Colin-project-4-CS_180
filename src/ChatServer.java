@@ -97,7 +97,7 @@ final class ChatServer {
      */
     private synchronized void directMessage(String message, String sender, String recipient) {
         for (ClientThread temp: clients) {
-            if (temp.username.equals(recipient) || temp.username.equals(sender)) {
+            if (temp.username.equalsIgnoreCase(recipient) || temp.username.equalsIgnoreCase(sender)) {
                 temp.writeMessage(message);
             }
         }
@@ -181,13 +181,20 @@ final class ChatServer {
         String username;
         ChatMessage cm;
 
-        private ClientThread(Socket socket, int id) {
+        private ClientThread(Socket socket, int id) throws IllegalArgumentException {
             this.id = id;
             this.socket = socket;
             try {
                 sOutput = new ObjectOutputStream(socket.getOutputStream());
                 sInput = new ObjectInputStream(socket.getInputStream());
                 username = (String) sInput.readObject();
+                if (clients.size() > 0) {
+                    for (ClientThread temp: clients) {
+                        if (temp.getUsername().equalsIgnoreCase(username)) {
+                            sOutput.writeObject("Username has already been taken!");
+                        }
+                    }
+                }
             } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
             }
@@ -212,6 +219,10 @@ final class ChatServer {
 
             return true;
 
+        }
+
+        private String getUsername() {
+            return username;
         }
 
         /**
