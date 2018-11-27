@@ -258,13 +258,15 @@ final class ChatServer {
                 try {
                     cm = (ChatMessage) sInput.readObject();
                 } catch (IOException | ClassNotFoundException e) {
-                    e.printStackTrace();
+                    remove(id);
+                    System.out.println(username + " just forced logged out.");
+                    break;
                 }
 
                 //If the message is a logout message
                 if (cm.getNum() == 1) {
                     remove(id);
-                    broadcast(cm.getStr());
+                    System.out.println(cm.getStr());
                     break;
                     //If a recipient was specified when creating the message, send a direct message.
                 } else if (cm.getRecipient() != null) {
