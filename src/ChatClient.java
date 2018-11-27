@@ -113,7 +113,8 @@ final class ChatClient {
                 System.out.println("Server has closed the connection.");
                 break;
             } else if (msg.contains("/msg")) {
-                client.sendMessage(new ChatMessage(0, msg, msg.substring(5, msg.indexOf(" ", 5))));
+                client.sendMessage(new ChatMessage(0, msg, client.username,
+                        msg.substring(5, msg.indexOf(" ", 5))));
                 //Send an empty message to the server
             } else {
                 client.sendMessage(new ChatMessage(0, msg));
