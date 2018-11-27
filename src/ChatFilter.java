@@ -60,7 +60,7 @@ public class ChatFilter {
 
         //Begin checking for bad words
         for (String temp: badWords) {
-            if (msg.contains(temp)) {
+            if (msg.toLowerCase().contains(temp.toLowerCase()) || msg.toUpperCase().contains(temp.toUpperCase())) {
                 String replaceString = "";
                 for (int i = 0; i < temp.length(); i++) {
                     replaceString += "*";

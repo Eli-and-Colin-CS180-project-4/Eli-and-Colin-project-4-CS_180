@@ -139,6 +139,9 @@ final class ChatClient {
                 try {
                     String msg = (String) sInput.readObject();
                     System.out.print(msg);
+                    if (msg.contains("Username has already been taken!")) {
+                        System.exit(0);
+                    }
                 } catch (IOException | ClassNotFoundException e) {
                     System.out.println("Server has gone offline");
                     System.exit(0);
