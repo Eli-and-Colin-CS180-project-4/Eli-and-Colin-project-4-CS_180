@@ -308,7 +308,8 @@ final class ChatServer {
                 } else if (cm.getStr().contains("/list")) {
                     //Gets the username and passes it to the method. The username is always preceded by a space.
                     listUsers(cm.getStr().substring(cm.getStr().indexOf(" ") + 1));
-                    message = cm.getStr();
+                    message = "";
+
                 } else {
                     //Censor the string
                     String lul = formatter.format(date) + " " + username + ": "
