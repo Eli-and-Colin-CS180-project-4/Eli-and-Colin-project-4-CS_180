@@ -31,7 +31,6 @@ final class ChatClient {
         this("Anonymous", 1503, "localhost");
     }
 
-
     /*
      * This starts the Chat Client
      */
@@ -40,7 +39,8 @@ final class ChatClient {
         try {
             socket = new Socket(server, port);
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("The server is currently not online.");
+            System.exit(0);
         }
 
         // Create your input and output streams
@@ -110,12 +110,11 @@ final class ChatClient {
             String msg = scn.nextLine();
             if (msg.equals("/logout")) {
                 client.sendMessage(new ChatMessage(1, client.username + " disconnected with a LOGOUT message."));
+                System.out.println("Server has closed the connection.");
                 break;
             } else if (msg.contains("/msg")) {
                 client.sendMessage(new ChatMessage(0, msg, msg.substring(5, msg.indexOf(" ", 5))));
                 //Send an empty message to the server
-            } else if (msg.equals("/list")) {
-              client.sendMessage(new ChatMessage(0, msg + " " + client.username));
             } else {
                 client.sendMessage(new ChatMessage(0, msg));
             }
@@ -136,7 +135,8 @@ final class ChatClient {
                     String msg = (String) sInput.readObject();
                     System.out.print(msg);
                 } catch (IOException | ClassNotFoundException e) {
-                    e.printStackTrace();
+                    System.out.println("Server has gone offline");
+                    System.exit(0);
                 }
 
             }
